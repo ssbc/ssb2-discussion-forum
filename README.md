@@ -199,7 +199,7 @@ Normally the message id has always been the hash of the complete
 message. Instead here we want to include the author, such that if
 there is a message in a thread you can't read, you know it might be
 from someone you blocked. 16 bytes should be enough to keep things
-relatively secure. 2^128 is a lot of different values.
+secure (see https://github.com/BLAKE3-team/BLAKE3/issues/123). 
 
 [SSB]: https://ssbc.github.io/scuttlebutt-protocol-guide/
 [buttwoo]: https://github.com/ssbc/ssb-buttwoo-spec
