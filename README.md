@@ -160,19 +160,30 @@ A dictionary of:
 ```  
  feedId => { 
     subfeed => {
-      timestamp,
-      limit,
-      reverse,
-      sparse
+      timestamp, // double
+      limit, // int
+      reverse, // bool
+      sparse // bool
     }
   }
 ```
 
 Sparse here means: don't replicate a message that has been edited or
-deleted.
+deleted. The request could also include a live flag.
 
 There should be a special variant of this that just returns the count
 instead of the messages so you can check if you are missing something.
+
+Sending this dictionary does come with some overhead as it would be
+sent on each connection. The overhead should be roughly: 32 + 5
+feeds * (8 + 8 + 4 + 1 + 1) = 142 bytes for each author. For 300
+authors this is ~ 42.5kb. Note that this is per author not per device
+as in SSB. So this scales okay for hops 1, but wouldn't work for hops
+2 or 3 kind of replication where you have several thousand feeds. This
+is also why EBT included same caching at the cost of complexity, so
+you would only need to send what has actually changed.
+
+Performance of this has not been tested in real world.
 
 ### Response
 
@@ -201,6 +212,14 @@ there is a message in a thread you can't read, you know it might be
 from someone you blocked. 16 bytes should be enough to keep things
 secure (see https://github.com/BLAKE3-team/BLAKE3/issues/123). 
 
+### Same author on multiple devices
+
+This was as explained in the into mainly done to simplify
+things. There is one place where this breaks down though, which is in
+multiserver and rooms where peers are not unique anymore. I believe it
+should be possible to fix this in secret handshake ([SHS]) instead
+with some simple numbering system.
+
 [SSB]: https://ssbc.github.io/scuttlebutt-protocol-guide/
 [buttwoo]: https://github.com/ssbc/ssb-buttwoo-spec
 [meta feeds]: https://github.com/ssbc/ssb-meta-feeds-spec
@@ -210,3 +229,4 @@ secure (see https://github.com/BLAKE3-team/BLAKE3/issues/123).
 [ssb-bfe encrypted data format]: https://github.com/ssbc/ssb-bfe-spec#5-encrypted-data-formats
 [blake3]: https://github.com/BLAKE3-team/BLAKE3
 [fusion identity]: https://github.com/ssbc/fusion-identity-spec
+[SHS]: https://github.com/auditdrivencrypto/secret-handshake
