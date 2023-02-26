@@ -6,7 +6,7 @@ Minibutt is a new binary feed format for [SSB]. It draws inspiration
 from many different sources: [buttwoo], [bamboo], [meta feeds],
 [earthstar].
 
-The format is designed to be simple, support edit/delete, support
+The format is designed to be simple, support edit and delete, support
 multiple devices sharing the same key, enable partitioning data into
 subfeeds and lastly to be performant.
 
@@ -196,13 +196,42 @@ metadata:   [author, subfeed, sequence, timestamp, tag, contentLen, contentHash]
 
 ## Design choices
 
-### Edit/delete
+### Edit / delete
 
-Write something about edit/delete here. Delete is just a special case
-of edit. Basically we have hashed content, so we can remove the actual
-content. Mark in the database if content is edited later, we can use
-this to determine if the message should not be included in the sparse
-replication mode. And maybe also for fetching missing content.
+While an edit message can seem like an application level concern, the
+reason why it is included in this document is to make sure that we can
+efficiently handle edits without compromising existing guarantees. An
+edit message is a message that changes an existing content of a
+message, it needs to reference the existing message in the edit
+tangle:
+
+```
+  "tangles" => {
+    "edit" => {
+      "root" => originalMsgId,
+      "previous" => originalMsgId or previousEditMsgId
+    }
+  },
+```
+
+A delete is just a special message in that it replaces the existing
+message with an empty message. Thus it is also part of the same edit
+tangle. A peer upon receiving a delete message should remove the
+content from the original message and all edits.
+
+Because we store the content hash in the chain, the chain is intact,
+but can be efficiently replicated in sparse mode where these messages
+will be left out. It's hard to prove that someone did not leave out
+anything they should not in sparse mode, which is why it is important
+to replicate from multiple peers and to check the count of messages
+and not only rely on latest messages based on timestamp.
+
+It might be that you replicate with a peer that doesn't have the
+content of previous versions in an edit. The chain is still intact,
+but you might want to content to show the history. For this, a special
+api is needed to request these similar to blobs.
+
+To make things simple, you can edit your own messages.
 
 ### Message id
 
