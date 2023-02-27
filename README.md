@@ -235,6 +235,12 @@ multiserver and rooms where peers are not unique anymore. I believe it
 should be possible to fix this in secret handshake ([SHS]) instead
 with some simple numbering system.
 
+## Acknowledgements
+
+Special thanks to @cblgh and @staltz for providing key initial
+feedback that significantly improved this specification.
+
+
 [SSB]: https://ssbc.github.io/scuttlebutt-protocol-guide/
 [buttwoo]: https://github.com/ssbc/ssb-buttwoo-spec
 [meta feeds]: https://github.com/ssbc/ssb-meta-feeds-spec
