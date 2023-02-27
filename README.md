@@ -220,11 +220,8 @@ tangle. A peer upon receiving a delete message should remove the
 content from the original message and all edits.
 
 Because we store the content hash in the chain, the chain is intact,
-but can be efficiently replicated in sparse mode where these messages
-will be left out. It's hard to prove that someone did not leave out
-anything they should not in sparse mode, which is why it is important
-to replicate from multiple peers and to check the count of messages
-and not only rely on latest messages based on timestamp.
+but can be efficiently replicated in sparse mode where the content of
+these messages will be left out.
 
 It might be that you replicate with a peer that doesn't have the
 content of previous versions in an edit. The chain is still intact,
