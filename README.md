@@ -67,30 +67,30 @@ the message hash. The message hash is 16 first bytes of the the
 
 ### Metadata
 
-The `metadata` field is a bipf-encoded array with 7 fields:
+The `metadata` field is a bipf-encoded array with 6 fields:
 
- - `author`: a ssb-bfe-encoded minibutt feed ID, an ed25519 public key
+ - `author`: the 32 bytes of an ed25519 public key
  - `feed`: a string to identity the nested feed if used.
  - `previous`: an array of message hashes of directly previous
    messages from the same author and feed.
  - `timestamp`: a double representing the UNIX epoch timestamp of
    message creation
- - `tag`: a byte with extensible tag information (the value `0x00`
-   means a standard message, `0x01` means nested feed, `0x02` means
-   end-of-feed). In future versions other tags to mean something else.
  - `contentLength`: an integer encoding the length of the bipf-encoded
    `content` in bytes
  - `contentHash`: the first 16 bytes of the [blake3] hash of the
-    bipf-encoded `content` bytes
+    `content` bytes
     
 It is important to note that one author can have multiple feeds, each
 nested feed defined as author + feed.
+
+Assuming an average feed length of 8 bytes, this gives a metadata size
+of 84 bytes
 
 ### Signature
 
 The `signature` uses the same HMAC signing capability
 (`sodium.crypto_auth`) and `sodium.crypto_sign_detached` as in the
-classic SSB format (ed25519).
+classic SSB format (ed25519). It is 64 bytes long.
 
 ### Content
 
@@ -112,10 +112,6 @@ For a social media app the following feeds could be useful:
  - post: a stream of messages for text messsages
  - reaction: a stream of messages for reactions to messsages
 
-FIXME: should we store room / pub information in a feed?
-
-FIXME: should we store blocked blobs similar to blocked feeds?
-
 ## Performance
 
 To be tested, but should be faster than buttwoo.
@@ -127,7 +123,7 @@ in onboarding situations.
 
 ## Size
 
-A message is roughly 149 bytes + encoding. This is a ~29% improvement
+A message is roughly 148 bytes + encoding. This is a ~29% improvement
 over buttwoo which is already a 20% size reduction in network traffic
 compared to classic format.
 
@@ -180,7 +176,7 @@ Messages sent over the wire should be bipf encoded as:
 
 ```
 transport:  [metadata, signature, content]
-metadata:   [author, feed, previous, timestamp, tag, contentLen, contentHash]
+metadata:   [author, feed, previous, timestamp, contentLen, contentHash]
 ```
 
 ## Design choices
@@ -217,7 +213,7 @@ content of previous versions in an edit. The chain is still intact,
 but you might want to content to show the history. For this, a special
 api is needed to request these similar to blobs.
 
-To make things simple, you can edit your own messages.
+To make things simple, you can only edit your own messages.
 
 ### Message id
 
@@ -229,7 +225,7 @@ secure (see https://github.com/BLAKE3-team/BLAKE3/issues/123).
 
 ### Same author on multiple devices
 
-This was as explained in the into mainly done to simplify
+This was, as explained in the intro, mainly done to simplify
 things. There is one place where this breaks down though, which is in
 multiserver and rooms where peers are not unique anymore. I believe it
 should be possible to fix this in secret handshake ([SHS]) instead
