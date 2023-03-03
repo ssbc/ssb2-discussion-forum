@@ -60,10 +60,11 @@ The metadata is used build the DAG structure around the
 content. Signature signs the metadata and content is, well the actual
 data.
 
-The message ID is the first 16 bytes of the author concatenated with
-the message hash. The message hash is 16 first bytes of the the
-[blake3] hash of the concatenation of `metadata` bytes with
-`signature` bytes .
+The message ID is of the form:
+`ssb:message/AUTHOR_ID/TYPE/MSG_HASH`. This is used in the application
+layer, such as thread tangles and mentions. The message hash is 16
+first bytes of the the [blake3] hash of the concatenation of
+`metadata` bytes with `signature` bytes and used in previous.
 
 ### Metadata
 
